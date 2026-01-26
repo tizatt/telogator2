@@ -4,37 +4,8 @@ import random
 import re
 import shutil
 
-LEXICO_2_IND = {'chr1':1, 'chr2':2, 'chr3':3, 'chr10':10, 'chr11':11, 'chr12':12, 'chr19':19, 'chr20':20,
-                'chr4':4, 'chr5':5, 'chr6':6, 'chr13':13, 'chr14':14, 'chr15':15, 'chr21':21, 'chr22':22,
-                'chr7':7, 'chr8':8, 'chr9':9, 'chr16':16, 'chr17':17, 'chr18':18,
-                'chrX':23,'chrY':24, 'chrM':25, 'chrF':26, 'chrB':27, 'chrU':28}
 
-SORTED_CHR_LIST = [n[1] for n in sorted([(LEXICO_2_IND[k],k) for k in LEXICO_2_IND])]
-
-T2T_CHROMSIZE = {'chr1':248387328,
-                 'chr2':242696752,
-                 'chr3':201105948,
-                 'chr4':193574945,
-                 'chr5':182045439,
-                 'chr6':172126628,
-                 'chr7':160567428,
-                 'chr8':146259331,
-                 'chr9':150617247,
-                 'chr10':134758134,
-                 'chr11':135127769,
-                 'chr12':133324548,
-                 'chr13':113566686,
-                 'chr14':101161492,
-                 'chr15':99753195,
-                 'chr16':96330374,
-                 'chr17':84276897,
-                 'chr18':80542538,
-                 'chr19':61707364,
-                 'chr20':66210255,
-                 'chr21':45090682,
-                 'chr22':51324926,
-                 'chrX':154259566,
-                 'chrY':62460029}
+#SORTED_CHR_LIST = [n[1] for n in sorted([(LEXICO_2_IND[k],k) for k in LEXICO_2_IND])]
 
 LARGE_NUMBER = int(1e9)
 

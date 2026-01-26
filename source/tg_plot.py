@@ -433,7 +433,7 @@ def violin_plotting(dat_p_p, dat_l_p, dat_w_p, dat_p_q, dat_l_q, dat_w_q, plot_p
             mpl.plot([xval - 0.3, xval + 0.3], [yval, yval], '-k', linewidth=2, alpha=0.3)
 
 
-def tel_len_violin_plot(tel_len_dict_list, out_fn, custom_plot_params={}):
+def tel_len_violin_plot(tel_len_dict_list, out_fn, chromosome_digits, custom_plot_params={}):
     #
     mpl.rcParams.update({'font.size': 18, 'font.weight':'normal'})
     plot_params = {'p_colors':[(70/255, 130/255, 180/255)], # steelblue
@@ -467,7 +467,8 @@ def tel_len_violin_plot(tel_len_dict_list, out_fn, custom_plot_params={}):
     if plot_params['legend']:
         samp_names = plot_params['legend'][:min(alleles_per_arm, len(plot_params['legend']))]
     #
-    xlab_temp = [str(n) for n in range(1,22+1)] + ['X', 'Y']
+    xlab_temp = chromosome_digits
+    #xlab_temp = [str(n) for n in range(1,num_chrs+1)] + ['X', 'Y']
     xlab = ['-']
     for n in xlab_temp:
         xlab.append(n)

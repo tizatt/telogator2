@@ -10,14 +10,15 @@ import subprocess
 import sys
 import time
 
+import source.tg_util
 from source.tg_align  import quick_compare_tvrs
 from source.tg_kmer   import get_canonical_letter, read_kmer_tsv
 from source.tg_plot   import convert_colorvec_to_kmerhits, make_tvr_plots, plot_fusion, plot_kmer_hits, plot_some_tvrs, readlen_plot, tel_len_violin_plot
 from source.tg_reader import quick_grab_all_reads_nodup, TG_Reader
 from source.tg_tel    import get_allele_tsv_dat, get_tel_repeat_comp_parallel, merge_allele_tsv_dat
 from source.tg_tvr    import cluster_consensus_tvrs, cluster_tvrs, quick_get_tvrtel_lens
-from source.tg_util   import annotate_interstitial_tel, check_aligner_exe, dir_exists, exists_and_is_nonzero, get_downsample_inds, get_file_type, LEXICO_2_IND, makedir, mv, parse_read, RC, rm, strip_paths_from_string, BLANK_CHR, UNCLUST_CHR, UNCLUST_POS
-
+from source.tg_util   import annotate_interstitial_tel, check_aligner_exe, dir_exists, exists_and_is_nonzero, get_downsample_inds, get_file_type, makedir, mv, parse_read, RC, rm, strip_paths_from_string, BLANK_CHR, UNCLUST_CHR, UNCLUST_POS
+from source.make_tg_multi_species import convert_fai_to_indexes
 TEL_WINDOW_SIZE = 100
 P_VS_Q_AMP_THRESH = 0.5
 MIN_TEL_SCORE = 100
@@ -88,6 +89,7 @@ def main(raw_args=None):
     parser.add_argument('--winnowmap-k15', type=str, required=False, metavar='k15.txt', default='',   help="high freq kmers file (only needed for winnowmap)")
     parser.add_argument('--ref',           type=str, required=False, metavar='ref.fa',  default='',   help="Reference filename (only needed if input is cram)")
     parser.add_argument('--rng',           type=int, required=False, metavar='-1',      default=-1,   help="RNG seed value")
+    parser.add_argument('--original_ref_fai', type=str, required=False, metavar="original.ref.fai", default='', help="Original reference fai file needed for multi-species")
     #
     args = parser.parse_args()
     #
@@ -96,6 +98,8 @@ def main(raw_args=None):
     OUT_DIR       = args.o
     KMER_FILE     = args.k
     TELOGATOR_REF = args.t
+    ORIGINAL_REF_FAI = args.original_ref_fai
+
     #
     READ_TYPE           = args.r
     MINIMUM_READ_LEN    = args.l
@@ -259,6 +263,11 @@ def main(raw_args=None):
         RAND_SHUFFLE_ITER_2 = 1
         TVR_REFINE_ITERATIONS = [2]
 
+    # Multi-species
+
+    t2t_chromsize, lexico_2_ind, chromosome_digits = convert_fai_to_indexes(ORIGINAL_REF_FAI)
+    source.tg_util.T2T_CHROMSIZE = t2t_chromsize
+    source.tg_util.LEXICO_2_IND = lexico_2_ind
     # TVR clustering parameters by iteration
     tvr_clust_params = [None, None, None]
     tvr_clust_params[0] = {'aln_mode':'ds',
@@ -1047,7 +1056,8 @@ def main(raw_args=None):
                 ALLELE_TEL_DAT[clustnum][7] = ','.join([str(n) for n in clust_mapq])
 
         # resort out allele dat by chr & atl & pos
-        sorted_ad_inds = sorted([(LEXICO_2_IND[n[0].split(',')[0][:-1]], n[0].split(',')[0][-1], -1 * int(n[4]), int(n[1].split(',')[0]), i) for i,n in enumerate(ALLELE_TEL_DAT)])
+        print(lexico_2_ind)
+        sorted_ad_inds = sorted([(lexico_2_ind[n[0].split(',')[0][:-1]], n[0].split(',')[0][-1], -1 * int(n[4]), int(n[1].split(',')[0]), i) for i,n in enumerate(ALLELE_TEL_DAT)])
         ALLELE_TEL_DAT = [ALLELE_TEL_DAT[n[4]] for n in sorted_ad_inds]
 
     #=====================================================#
@@ -1154,7 +1164,7 @@ def main(raw_args=None):
                    'q_ymax':VIOLIN_YMAX,
                    'y_step':VIOLIN_TICK,
                    'y_label':'<-- q      ATL      p -->'}
-        tel_len_violin_plot(atl_by_arm, VIOLIN_ATL, custom_plot_params=vparams)
+        tel_len_violin_plot(atl_by_arm, VIOLIN_ATL, chromosome_digits, custom_plot_params=vparams)
 
     #
     # plot all final tvrs
